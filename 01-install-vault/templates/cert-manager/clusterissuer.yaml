@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: cert-manager
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: nobody@hashicorp.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - dns01:
+          cloudDNS:
+            project: ${proj_id}
+            serviceAccountSecretRef:
+              name: dns01-solver-svc-acct
+              key: credentials.json
+        selector:
+          dnsZones:
+            - "${domain_name}"
+            - "*.${domain_name}"
