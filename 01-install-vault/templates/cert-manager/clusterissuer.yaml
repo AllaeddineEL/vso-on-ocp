@@ -10,13 +10,6 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
-      - dns01:
-          cloudDNS:
-            project: ${proj_id}
-            serviceAccountSecretRef:
-              name: dns01-solver-svc-acct
-              key: credentials.json
-        selector:
-          dnsZones:
-            - "${domain_name}"
-            - "*.${domain_name}"
+      - http01:
+        ingress:
+          class: openshift-default 
