@@ -8,5 +8,5 @@ output "vault_unseal_key" {
 }
 
 output "vault_url" {
-  value = "https://vault.${trimsuffix(data.google_dns_managed_zone.doormat_dns_zone.dns_name, ".")}"
+  value = "https://vault.crc-vm.${var.sandbox_id}.instruqt.io"
 }
