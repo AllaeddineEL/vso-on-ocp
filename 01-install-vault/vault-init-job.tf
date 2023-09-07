@@ -41,7 +41,7 @@ resource "kubernetes_config_map" "vault_init_script" {
   }
 
   data = {
-    "vault-init.sh" = "${file("${path.module}/templates/vault-init.sh")}"
+    "vault-init.sh" = "${file("${path.module}/templates/vault/vault-init.sh")}"
   }
 }
 

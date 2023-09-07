@@ -1,30 +1,32 @@
+global:
+  openshift: true
+injector:
+  enabled: false
 server:
   image:
     repository: hashicorp/vault-enterprise
     tag: 1.14.1-ent
   enterpriseLicense: 
-    secretName: ${ent_license_secret_name}
+    secretName: enterprise-license
   route:
     enabled: true
     activeService: true
-    hosts:
-      - host: ${vault_fqdn}
-        paths: []
-    extraPaths: []
+    host: ${vault_fqdn}
     tls:
       termination: passthrough
+  extraVolumes:
+    - type: "secret"
+      name: "vault-certs"
+      path: "/etc/vault-tls"    
   standalone:
     config: |
       ui = true
-      cluster_name = "vtl"
+      cluster_name = "ocp-vault"
       listener "tcp" {
-        tls_disable = 1
         address = "[::]:8200"
         cluster_address = "[::]:8201"
-        # Enable unauthenticated metrics access (necessary for Prometheus Operator)
-        #telemetry {
-        #  unauthenticated_metrics_access = "true"
-        #}
+        tls_cert_file = "/etc/vault-tls/vault-certs/tls.crt"
+        tls_key_file = "/etc/vault-tls/vault-certs/tls.key"
       }
       storage "file" {
         path = "/vault/data"
