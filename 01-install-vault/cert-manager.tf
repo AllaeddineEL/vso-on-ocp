@@ -82,3 +82,26 @@ spec:
   EOF
   depends_on      = [time_sleep.wait, helm_release.cert_manager]
 }
+
+data "http" "cert_manager_openshift_routes" {
+  url = "https://github.com/cert-manager/openshift-routes/releases/latest/download/cert-manager-openshift-routes.yaml"
+}
+resource "kubectl_manifest" "cert_manager_openshift_routes" {
+  validate_schema = false
+  force_new       = true
+  yaml_body       = data.http.cert_manager_openshift_routes.body
+  depends_on      = [kubectl_manifest.cluster_issuer, helm_release.cert_manager]
+}
+resource "kubernetes_annotations" "ocp_console" {
+  api_version = "route.openshift.io/v1"
+  kind        = "route"
+  metadata {
+    name      = "console"
+    namespace = "openshift-console"
+  }
+  annotations = {
+    "cert-manager.io/issuer-kind" = "ClusterIssuer"
+    "cert-manager.io/issuer-name" = "letsencrypt-prod"
+  }
+  depends_on = [kubectl_manifest.cert_manager_openshift_routes]
+}
