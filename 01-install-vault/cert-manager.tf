@@ -74,3 +74,17 @@ resource "kubernetes_annotations" "ocp_console" {
   }
   depends_on = [kubectl_manifest.cert_manager_openshift_routes]
 }
+
+resource "kubernetes_annotations" "oauth" {
+  api_version = "route.openshift.io/v1"
+  kind        = "Route"
+  metadata {
+    name      = "oauth-openshift"
+    namespace = "openshift-authentication"
+  }
+  annotations = {
+    "cert-manager.io/issuer-kind" = "ClusterIssuer"
+    "cert-manager.io/issuer-name" = "letsencrypt-prod"
+  }
+  depends_on = [kubectl_manifest.cert_manager_openshift_routes]
+}
