@@ -25,41 +25,6 @@ resource "time_sleep" "wait" {
   depends_on = [helm_release.cert_manager]
 }
 
-# resource "kubernetes_manifest" "cluster_issuer" {
-#   manifest = {
-#     "apiVersion" = "cert-manager.io/v1"
-#     "kind"       = "ClusterIssuer"
-#     "metadata" = {
-#       "name" = "letsencrypt-prod"
-#       # "namespace" = "${kubernetes_namespace.cert_manager.metadata.0.name}"
-#     }
-#     "spec" = {
-#       "acme" = {
-#         "email" = "nobody@hashicorp.com"
-#         "privateKeySecretRef" = {
-#           "name" = "letsencrypt-prod"
-#         }
-#         "server" = "https://acme-v02.api.letsencrypt.org/directory"
-#         "solvers" = [
-#           {
-#             "http01" = {
-#               "ingress" = {
-#                 "class" = "openshift-default"
-#               }
-#             }
-#           },
-#         ]
-#       }
-#     }
-#   }
-#   wait {
-#     rollout = true
-#   }
-#   depends_on = [time_sleep.wait, helm_release.cert_manager]
-# }
-
-
-
 resource "kubectl_manifest" "cluster_issuer" {
   validate_schema = false
   force_new       = true
@@ -86,15 +51,19 @@ spec:
 data "http" "cert_manager_openshift_routes" {
   url = "https://github.com/cert-manager/openshift-routes/releases/latest/download/cert-manager-openshift-routes.yaml"
 }
+data "kubectl_file_documents" "cert_manager_openshift_routes_docs" {
+  content = data.http.cert_manager_openshift_routes.response_body
+}
 resource "kubectl_manifest" "cert_manager_openshift_routes" {
+  for_each        = data.kubectl_file_documents.cert_manager_openshift_routes_docs.manifests
   validate_schema = false
   force_new       = true
-  yaml_body       = data.http.cert_manager_openshift_routes.body
+  yaml_body       = each.value
   depends_on      = [kubectl_manifest.cluster_issuer, helm_release.cert_manager]
 }
 resource "kubernetes_annotations" "ocp_console" {
   api_version = "route.openshift.io/v1"
-  kind        = "route"
+  kind        = "Route"
   metadata {
     name      = "console"
     namespace = "openshift-console"
