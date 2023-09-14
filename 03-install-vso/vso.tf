@@ -25,3 +25,16 @@ resource "kubernetes_service_account" "operator" {
     name      = "default-vso-operator"
   }
 }
+
+resource "kubectl_manifest" "vault-connection-default" {
+  validate_schema = false
+  yaml_body       = <<YAML
+  apiVersion: secrets.hashicorp.com/v1beta1
+  kind: VaultConnection
+  metadata:
+    name: default
+    namespace: ${kubernetes_namespace.vso.metadata[0].name}
+  spec:
+    address: http://vault.vault.svc.cluster.local:8200
+  YAML
+}
