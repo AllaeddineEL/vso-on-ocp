@@ -1,3 +1,29 @@
+defaultAuthMethod:
+  # toggles the deployment of the VaultAuthMethod CR
+  # @type: boolean
+  enabled: true
+
+  # Vault namespace for the VaultAuthMethod CR
+  # @type: string
+  namespace: "dev/backend"
+
+  # Vault Auth method to be used with the VaultAuthMethod CR
+  # @type: string
+  method: kubernetes
+
+  # Mount path for the Vault Auth Method.
+  # @type: string
+  mount: kubernetes
+defaultVaultConnection:
+  # toggles the deployment of the VaultAuthMethod CR
+  # @type: boolean
+  enabled: true
+
+  # Address of the Vault Server
+  # @type: string
+  # Example: http://vault.default.svc.cluster.local:8200
+  address: "http://vault.vault.svc.cluster.local:8200"
+enabled: true
 controller:
   manager:
     resources:
