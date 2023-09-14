@@ -30,3 +30,24 @@ resource "helm_release" "vault" {
   depends_on = [kubectl_manifest.vault_certs]
 }
 
+resource "kubectl_manifest" "vault_network_policy" {
+  validate_schema = false
+  yaml_body       = <<-EOF
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-vso-namespace
+  namespace: vault
+spec:
+  podSelector:
+    matchLabels: 
+      app.kubernetes.io/name: vault    
+  policyTypes:
+  - Ingress 
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          projectName: vso
+  EOF
+}
