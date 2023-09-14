@@ -14,6 +14,8 @@ defaultAuthMethod:
   # Mount path for the Vault Auth Method.
   # @type: string
   mount: kubernetes
+  kubernetes:
+    role: "auth-role"
 defaultVaultConnection:
   # toggles the deployment of the VaultAuthMethod CR
   # @type: boolean
