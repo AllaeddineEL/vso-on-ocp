@@ -10,13 +10,17 @@ resource "helm_release" "postgres" {
   create_namespace = false
   wait             = true
   wait_for_jobs    = true
-
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "postgresql"
+  version          = "12.11.1"
+  repository       = "https://charts.bitnami.com/bitnami"
+  chart            = "postgresql"
 
   set {
-    name  = "auth.audit.logConnections"
-    value = "true"
+    name  = "primary.containerSecurityContext.enabled"
+    value = false
+  }
+  set {
+    name  = "primary.podSecurityContext.enabled"
+    value = false
   }
 
 }
