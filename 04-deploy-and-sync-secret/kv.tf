@@ -1,4 +1,5 @@
 resource "vault_mount" "kvv2" {
+  namespace   = "dev/backend"
   path        = "kvv2"
   type        = "kv"
   options     = { version = "2" }
@@ -6,8 +7,8 @@ resource "vault_mount" "kvv2" {
 }
 
 resource "vault_policy" "kv" {
-  namespace = local.namespace
-  name      = "${local.auth_policy}-kv"
+  namespace = "dev/backend"
+  name      = "dev-backend-kv"
   policy    = <<EOT
 path "${vault_mount.kvv2.path}/*" {
   capabilities = ["read"]
@@ -16,6 +17,7 @@ EOT
 }
 
 resource "vault_kv_secret_v2" "webapp" {
+  namespace           = "dev/backend"
   mount               = vault_mount.kvv2.path
   name                = "webapp"
   cas                 = 1
@@ -37,17 +39,15 @@ resource "kubectl_manifest" "vault-auth-kv" {
     namespace: ${kubernetes_namespace.dev.metadata[0].name}
   spec:
     method: kubernetes
-    mount: ${vault_auth_backend.default.path}
+    mount: "dev-backend-auth-mount"
     kubernetes:
-      role: "${vault_kubernetes_auth_backend_role.dev.role_name}"
+      role: "auth-role"
       serviceAccount: default
       audiences:
         - vault
   YAML
   depends_on = [
     helm_release.vso,
-    vault_auth_backend.default,
-    vault_kubernetes_auth_backend_role.dev
   ]
 }
 
