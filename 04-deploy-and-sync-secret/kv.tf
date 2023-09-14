@@ -29,6 +29,18 @@ resource "vault_kv_secret_v2" "webapp" {
     }
   )
 }
+resource "kubectl_manifest" "vault-connection-default" {
+  validate_schema = false
+  yaml_body       = <<YAML
+  apiVersion: secrets.hashicorp.com/v1beta1
+  kind: VaultConnection
+  metadata:
+    name: default
+    namespace: ${kubernetes_namespace.dev.metadata[0].name}
+  spec:
+    address: http://vault.vault.svc.cluster.local:8200
+  YAML
+}
 resource "kubectl_manifest" "vault-auth-kv" {
   validate_schema = false
   yaml_body       = <<YAML
