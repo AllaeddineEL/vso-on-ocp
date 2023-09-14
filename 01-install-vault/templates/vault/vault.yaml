@@ -11,22 +11,20 @@ server:
   route:
     enabled: true
     activeService: true
+    annotations: |
+      cert-manager.io/issuer-kind : "ClusterIssuer"
+      cert-manager.io/issuer-name : "letsencrypt-prod"
     host: ${vault_fqdn}
     tls:
-      termination: passthrough
-  extraVolumes:
-    - type: "secret"
-      name: "vault-certs"
-      path: "/etc/vault-tls"    
+      termination: edge  
   standalone:
     config: |
-      ui = true
+      ui = true  
       cluster_name = "ocp-vault"
       listener "tcp" {
+        tls_disable = 1
         address = "[::]:8200"
         cluster_address = "[::]:8201"
-        tls_cert_file = "/etc/vault-tls/vault-certs/tls.crt"
-        tls_key_file = "/etc/vault-tls/vault-certs/tls.key"
       }
       storage "file" {
         path = "/vault/data"

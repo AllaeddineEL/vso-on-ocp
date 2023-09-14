@@ -52,6 +52,7 @@ resource "kubectl_manifest" "vault-auth-kv" {
   spec:
     method: kubernetes
     mount: "dev-backend-auth-mount"
+    namespace: "dev/backend"
     kubernetes:
       role: "auth-role"
       serviceAccount: default
@@ -70,7 +71,7 @@ resource "kubectl_manifest" "kv-secret-create" {
     namespace: "${kubernetes_namespace.dev.metadata[0].name}"
   spec:
     type: kv-v2
-
+    namespace: "dev/backend"
     # mount path
     mount: "${vault_mount.kvv2.path}"
 

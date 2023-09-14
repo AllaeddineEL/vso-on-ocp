@@ -30,27 +30,31 @@ resource "helm_release" "vault" {
   values = [
     templatefile("${path.module}/templates/vault/vault.yaml", { vault_fqdn = "vault.crc-vm.${var.sandbox_id}.instruqt.io" })
   ]
-  depends_on = [kubectl_manifest.vault_certs]
+  depends_on = [kubectl_manifest.vault_certs,
+    kubectl_manifest.cert_manager_openshift_routes
+  ]
 }
 
 resource "kubectl_manifest" "vault_network_policy" {
   validate_schema = false
   yaml_body       = <<-EOF
-apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
 metadata:
   name: allow-from-vso-namespace
   namespace: vault
 spec:
-  podSelector:
-    matchLabels: 
-      app.kubernetes.io/name: vault    
-  policyTypes:
-  - Ingress 
+  podSelector: {}
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          projectName: vso
-  EOF
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: vso
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: dev-backend
+  policyTypes:
+  - Ingress
+EOF
 }
