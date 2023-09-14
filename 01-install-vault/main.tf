@@ -14,6 +14,9 @@ spec:
   commonName: "vault.crc-vm.${var.sandbox_id}.instruqt.io"
   dnsNames:
     - "vault.crc-vm.${var.sandbox_id}.instruqt.io"
+    - "localhost"
+  ipAddresses:
+    - 127.0.0.1  
   EOF
   depends_on      = [kubectl_manifest.cluster_issuer]
 }
