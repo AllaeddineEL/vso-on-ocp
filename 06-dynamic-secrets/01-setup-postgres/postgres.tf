@@ -50,7 +50,7 @@ resource "vault_database_secrets_mount" "db" {
     connection_url    = "postgresql://{{username}}:{{password}}@${local.postgres_host}/postgres?sslmode=disable"
     verify_connection = false
     allowed_roles = [
-      var.db_role,
+      "dev-backend-postgres",
     ]
   }
 }
