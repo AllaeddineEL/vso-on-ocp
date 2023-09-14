@@ -1,0 +1,7 @@
+controller:
+  manager:
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        memory: 128Mi
