@@ -46,9 +46,6 @@ resource "kubectl_manifest" "vault-auth-kv" {
       audiences:
         - vault
   YAML
-  depends_on = [
-    helm_release.vso,
-  ]
 }
 
 resource "kubectl_manifest" "kv-secret-create" {
@@ -79,7 +76,4 @@ resource "kubectl_manifest" "kv-secret-create" {
     # Name of the CRD to authenticate to Vault
     vaultAuthRef: "${kubectl_manifest.vault-auth-kv.name}"
   YAML
-  depends_on = [
-    helm_release.vso
-  ]
 }
