@@ -88,3 +88,55 @@ resource "kubernetes_annotations" "oauth" {
   }
   depends_on = [kubectl_manifest.cert_manager_openshift_routes]
 }
+
+resource "kubectl_manifest" "console_route" {
+  validate_schema = false
+  force_new       = true
+  yaml_body       = <<-EOF
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: console
+  name: console-custom
+  namespace: openshift-console
+spec:
+  host: console-openshift-console.crc-vm.yqcbbqbbs7qx.instruqt.io
+  port:
+    targetPort: https
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: reencrypt
+  to:
+    kind: Service
+    name: console
+    weight: 100
+  wildcardPolicy: None
+EOF
+}
+
+resource "kubectl_manifest" "oauth_route" {
+  validate_schema = false
+  force_new       = true
+  yaml_body       = <<-EOF
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: oauth-openshift
+  name: oauth-openshift
+  namespace: openshift-authentication
+spec:
+  host: oauth-openshift.crc-vm.yqcbbqbbs7qx.instruqt.io
+  port:
+    targetPort: 6443
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: passthrough
+  to:
+    kind: Service
+    name: oauth-openshift
+    weight: 100
+  wildcardPolicy: None
+EOF
+}
