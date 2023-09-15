@@ -1,9 +1,5 @@
 
-locals {
-  # db locals
-  postgres_host = "${data.kubernetes_service.postgres.metadata[0].name}.${helm_release.postgres.namespace}.svc.cluster.local:${data.kubernetes_service.postgres.spec[0].port[0].port}"
 
-}
 resource "kubectl_manifest" "vault-auth-default" {
   validate_schema = false
   yaml_body       = <<YAML
