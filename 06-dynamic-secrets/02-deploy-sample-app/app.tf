@@ -7,13 +7,13 @@ resource "kubectl_manifest" "vault-auth-default" {
   kind: VaultAuth
   metadata:
     name: default
-    namespace: dev-backend
+    namespace: vso
   spec:
     method: kubernetes
     mount: "dev-backend-auth-mount"
     namespace: "dev/backend"
     kubernetes:
-      role: "dev-backend-postgres"
+      role: "auth-role" #"dev-backend-postgres"
       serviceAccount: default
       audiences:
         - vault
@@ -29,7 +29,7 @@ resource "kubectl_manifest" "vault-dynamic-secret" {
     name: vso-db-demo
     namespace: dev-backend
   spec:
-    vaultAuthRef: ${kubectl_manifest.vault-auth-default.name}
+   # vaultAuthRef: ${kubectl_manifest.vault-auth-default.name}
     namespace: "dev/backend"
     mount: "dev-backend-db"
     path: "creds/dev-backend-postgres"
@@ -81,7 +81,7 @@ resource "kubernetes_deployment" "example" {
   }
 
   spec {
-    replicas = 3
+    replicas = 1
 
     strategy {
       rolling_update {
@@ -110,10 +110,10 @@ resource "kubernetes_deployment" "example" {
           }
         }
         container {
-          image = "postgres:latest"
+          image = "docker.io/bitnami/postgresql:15.4.0-debian-11-r10" #"postgres:latest"
           name  = "demo"
           command = [
-            "sh", "-c", "while : ; do psql postgresql://$PGUSERNAME@postgres-postgresql.dev-backend.svc.cluster.local:5432/postgres?sslmode=disable -c 'select 1;' ; echo $PGPASSWORD ;sleep 5; done"
+            "sh", "-c", "while : ; do psql postgresql://$PGUSERNAME@postgres-postgresql.dev-backend.svc.cluster.local:5432/postgres?sslmode=disable -c '\\l+ ;' ; echo $PGPASSWORD ;sleep 5; done"
           ]
 
           env {
@@ -141,15 +141,15 @@ resource "kubernetes_deployment" "example" {
             mount_path = "/etc/secrets"
             read_only  = true
           }
-          securityContext = {
-            "allowPrivilegeEscalation" = false
-            "capabilities" = {
-              "drop" = [
+          security_context {
+            allow_privilege_escalation = false
+            capabilities {
+              drop = [
                 "ALL",
               ]
             }
-            "runAsNonRoot" = true
-            "runAsUser"    = 1000810000
+            run_as_non_root = true
+            run_as_user     = 1000810000
           }
           resources {
             limits = {
@@ -162,13 +162,13 @@ resource "kubernetes_deployment" "example" {
             }
           }
         }
-        securityContext = {
-          "fsGroup" = 1000810000
-          "seLinuxOptions" = {
-            "level" = "s0:c28,c27"
+        security_context {
+          fs_group = 1000810000
+          se_linux_options {
+            level = "s0:c28,c27"
           }
-          "seccompProfile" = {
-            "type" = "RuntimeDefault"
+          seccomp_profile {
+            type = "RuntimeDefault"
           }
         }
       }
