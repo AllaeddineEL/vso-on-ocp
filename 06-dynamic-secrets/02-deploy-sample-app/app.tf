@@ -1,4 +1,9 @@
 
+locals {
+  # db locals
+  postgres_host = "${data.kubernetes_service.postgres.metadata[0].name}.${helm_release.postgres.namespace}.svc.cluster.local:${data.kubernetes_service.postgres.spec[0].port[0].port}"
+
+}
 resource "kubectl_manifest" "vault-auth-default" {
   validate_schema = false
   yaml_body       = <<YAML
@@ -28,7 +33,7 @@ resource "kubectl_manifest" "vault-dynamic-secret" {
     name: vso-db-demo
     namespace: dev-backend
   spec:
-    vaultAuthRef: ${kubectl_manifest.vault-auth-kv.name}
+    vaultAuthRef: ${kubectl_manifest.vault-auth-default.name}
     namespace: "dev/backend"
     mount: "dev-backend-db"
     path: "creds/dev-backend-postgres"
@@ -50,7 +55,7 @@ resource "kubectl_manifest" "vault-dynamic-secret-create" {
     name: vso-db-demo-create
     namespace: dev-backend
   spec:
-    vaultAuthRef: ${kubectl_manifest.vault-auth-kv.name}
+    vaultAuthRef: ${kubectl_manifest.vault-auth-default.name}
     namespace: "dev/backend"
     mount: "dev-backend-db"
     path: "creds/dev-backend-postgres"
@@ -112,7 +117,7 @@ resource "kubernetes_deployment" "example" {
           image = "postgres:latest"
           name  = "demo"
           command = [
-            "sh", "-c", "while : ; do psql postgresql://$PGUSERNAME@${local.postgres_host}/postgres?sslmode=disable -c 'select 1;' ; echo $PGPASSWORD ;sleep 5; done"
+            "sh", "-c", "while : ; do psql postgresql://$PGUSERNAME@postgres-postgresql.dev-backend.svc.cluster.local:5432/postgres?sslmode=disable -c 'select 1;' ; echo $PGPASSWORD ;sleep 5; done"
           ]
 
           env {
