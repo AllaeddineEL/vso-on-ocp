@@ -141,7 +141,16 @@ resource "kubernetes_deployment" "example" {
             mount_path = "/etc/secrets"
             read_only  = true
           }
-
+          securityContext = {
+            "allowPrivilegeEscalation" = false
+            "capabilities" = {
+              "drop" = [
+                "ALL",
+              ]
+            }
+            "runAsNonRoot" = true
+            "runAsUser"    = 1000810000
+          }
           resources {
             limits = {
               cpu    = "0.5"
@@ -151,6 +160,15 @@ resource "kubernetes_deployment" "example" {
               cpu    = "250m"
               memory = "50Mi"
             }
+          }
+        }
+        securityContext = {
+          "fsGroup" = 1000810000
+          "seLinuxOptions" = {
+            "level" = "s0:c28,c27"
+          }
+          "seccompProfile" = {
+            "type" = "RuntimeDefault"
           }
         }
       }
