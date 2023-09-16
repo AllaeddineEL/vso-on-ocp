@@ -149,7 +149,7 @@ resource "kubernetes_deployment" "example" {
               ]
             }
             run_as_non_root = true
-            run_as_user     = 1000810000
+            run_as_user     = 1000660000
           }
           resources {
             limits = {
@@ -163,10 +163,7 @@ resource "kubernetes_deployment" "example" {
           }
         }
         security_context {
-          fs_group = 1000810000
-          se_linux_options {
-            level = "s0:c28,c27"
-          }
+          fs_group = 1000660000
           seccomp_profile {
             type = "RuntimeDefault"
           }
