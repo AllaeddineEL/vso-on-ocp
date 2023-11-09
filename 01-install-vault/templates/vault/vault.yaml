@@ -5,7 +5,7 @@ injector:
 server:
   image:
     repository: hashicorp/vault-enterprise
-    tag: 1.14.1-ent
+    tag: 1.15.1-ent
   enterpriseLicense: 
     secretName: enterprise-license
   route:

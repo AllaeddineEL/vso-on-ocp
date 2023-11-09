@@ -25,7 +25,7 @@ resource "helm_release" "vault" {
   repository       = "https://helm.releases.hashicorp.com"
   chart            = "vault"
   namespace        = "vault"
-  version          = "0.25.0"
+  version          = "0.26.1"
   create_namespace = false
   values = [
     templatefile("${path.module}/templates/vault/vault.yaml", { vault_fqdn = "vault.crc-vm.${var.sandbox_id}.instruqt.io" })
