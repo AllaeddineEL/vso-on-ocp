@@ -2,6 +2,26 @@
 # Enable userpass auth method
 #--------------------------------
 
+resource "vault_auth_backend" "root_userpass" {
+  type = "userpass"
+}
+resource "random_password" "super_admin_user" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+resource "vault_generic_endpoint" "super_admin_user" {
+  depends_on           = [vault_auth_backend.root_userpass]
+  path                 = "auth/userpass/users/super-admin"
+  ignore_absent_fields = true
+
+  data_json = <<EOT
+{
+  "policies": [ "default","${vault_policy.super_admin_policy.name}"],
+  "password": "${random_password.super_admin_user.result}"
+}
+EOT
+}
 resource "vault_auth_backend" "orgs_userpass" {
   for_each  = vault_namespace.orgs
   type      = "userpass"
@@ -153,5 +173,9 @@ output "dev_backend_admin_creds" {
 }
 output "dev_org_admin_creds" {
   value = zipmap(var.dev_org_admin_users, local.dev_org_admin_passwd)
+  #sensitive = true
+}
+output "super_admin_creds" {
+  value = zipmap(["super-admin"], [nonsensitive(random_password.super_admin_user.result)])
   #sensitive = true
 }

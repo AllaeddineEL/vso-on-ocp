@@ -1,3 +1,7 @@
+resource "vault_policy" "super_admin_policy" {
+  name   = "super-admin"
+  policy = file("policies/super-admin-policy.hcl")
+}
 resource "vault_policy" "admin_policy" {
   for_each  = vault_namespace.orgs
   namespace = each.value.path

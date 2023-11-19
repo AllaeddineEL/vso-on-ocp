@@ -11,7 +11,7 @@ resource "helm_release" "vso" {
   repository       = "https://helm.releases.hashicorp.com"
   chart            = "vault-secrets-operator"
   namespace        = kubernetes_namespace.vso.metadata[0].name
-  version          = "0.2.0"
+  version          = "0.4.0"
   create_namespace = false
   values = [
     file("${path.module}/templates/values.yaml")
