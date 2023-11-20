@@ -71,7 +71,7 @@ resource "kubernetes_secret" "db" {
   }
 }
 
-resource "kubernetes_deployment" "example" {
+resource "kubernetes_deployment" "vso_db_demo" {
   metadata {
     name      = "vso-db-demo"
     namespace = "dev-backend"
