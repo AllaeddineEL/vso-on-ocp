@@ -141,16 +141,16 @@ resource "kubernetes_deployment" "vso_db_demo" {
             mount_path = "/etc/secrets"
             read_only  = true
           }
-          security_context {
-            allow_privilege_escalation = false
-            capabilities {
-              drop = [
-                "ALL",
-              ]
-            }
-            run_as_non_root = true
-            run_as_user     = 1000680000
-          }
+          # security_context {
+          #   allow_privilege_escalation = false
+          #   capabilities {
+          #     drop = [
+          #       "ALL",
+          #     ]
+          #   }
+          #   run_as_non_root = true
+          #   run_as_user     = 1000680000
+          # }
           resources {
             limits = {
               cpu    = "0.5"
@@ -162,12 +162,12 @@ resource "kubernetes_deployment" "vso_db_demo" {
             }
           }
         }
-        security_context {
-          fs_group = 1000680000
-          seccomp_profile {
-            type = "RuntimeDefault"
-          }
-        }
+        # security_context {
+        #   fs_group = 1000680000
+        #   seccomp_profile {
+        #     type = "RuntimeDefault"
+        #   }
+        # }
       }
     }
   }
